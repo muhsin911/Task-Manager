@@ -10,4 +10,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/bin/sh", "-c", "echo 'Access the app at http://localhost:8000/ or http://127.0.0.1:8000/'; python manage.py runserver 0.0.0.0:8000"]

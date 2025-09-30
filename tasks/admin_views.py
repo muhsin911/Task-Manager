@@ -37,7 +37,7 @@ class UserCreateView(SuperAdminRequiredMixin, CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         # Assign default 'User' group
-        user_group = Group.objects.get(name='User')
+        user_group, _ = Group.objects.get_or_create(name='User')
         self.object.groups.add(user_group)
         return response
 
@@ -69,7 +69,7 @@ class AdminCreateView(SuperAdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        admin_group = Group.objects.get(name='Admin')
+        admin_group, _ = Group.objects.get_or_create(name='Admin')
         self.object.groups.add(admin_group)
         return response
 
@@ -158,8 +158,8 @@ class AssignUserToAdminView(SuperAdminRequiredMixin, View):
 class AdminPromoteDemoteView(SuperAdminRequiredMixin, View):
     def post(self, request, pk, action):
         user = get_object_or_404(User, pk=pk)
-        admin_group = Group.objects.get(name='Admin')
-        user_group = Group.objects.get(name='User')
+        admin_group, _ = Group.objects.get_or_create(name='Admin')
+        user_group, _ = Group.objects.get_or_create(name='User')
         if action == 'promote':
             user.groups.remove(user_group)
             user.groups.add(admin_group)
