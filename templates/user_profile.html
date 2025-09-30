@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow mt-5">
+      <div class="card-header bg-primary text-white">
+        <h2>User Profile</h2>
+      </div>
+      <div class="card-body">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Role:</strong> {{ user.groups.all.0.name }}</p>
+        <p><strong>Managed By:</strong>
+          {% for admin in user.userprofile.managed_by.all %}
+            {{ admin.username }}{% if not forloop.last %}, {% endif %}
+          {% empty %}None{% endfor %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

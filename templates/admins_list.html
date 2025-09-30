@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Admins</h2>
+<a href="{% url 'admin_create' %}" class="btn btn-primary mb-3">Create Admin</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for admin in admins %}
+        <tr>
+            <td>{{ admin.username }}</td>
+            <td>{{ admin.email }}</td>
+            <td>
+                <a href="{% url 'admin_update' admin.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'admin_delete' admin.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                <form action="{% url 'admin_promote_demote' admin.pk 'demote' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-info">Demote to User</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

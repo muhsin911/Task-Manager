@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Task Report: {{ task.title }}</h2>
+    </div>
+    <div class="card-body">
+        <p><strong>Assigned To:</strong> {{ task.assigned_to.username }}</p>
+        <p><strong>Status:</strong> {{ task.status }}</p>
+        <p><strong>Completion Report:</strong> {{ task.completion_report }}</p>
+        <p><strong>Worked Hours:</strong> {{ task.worked_hours }}</p>
+        <a href="{% url 'task_list_admin' %}" class="btn btn-secondary">Back</a>
+    </div>
+</div>
+{% endblock %}

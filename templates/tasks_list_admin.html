@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="mb-4">Tasks</h2>
+<a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Create Task</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in object_list %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.assigned_to.username }}</td>
+            <td>{{ task.status }}</td>
+            <td>
+                <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                {% if task.status == 'Completed' %}
+                <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
