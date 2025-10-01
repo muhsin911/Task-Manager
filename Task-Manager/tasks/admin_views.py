@@ -206,3 +206,16 @@ class AdminPromoteDemoteView(SuperAdminRequiredMixin, View):
             user.groups.remove(admin_group)
             user.groups.add(user_group)
         return redirect('admin_list')
+
+
+# Custom View: Unassign Users from Admins (SuperAdmin Only)
+from .forms import UnassignUserForm
+
+class UnassignUserFromAdminView(SuperAdminRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        form = UnassignUserForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data['user']
+            admin = form.cleaned_data['admin']
+            user.userprofile.managed_by.remove(admin)
+        return redirect('assign_user')

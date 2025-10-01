@@ -7,7 +7,7 @@ from tasks.admin_views import (
     UserListView, UserCreateView, UserUpdateView, UserDeleteView,
     AdminListView, AdminCreateView, AdminUpdateView, AdminDeleteView,
     TaskListAdminView, TaskCreateView, TaskUpdateView, TaskDeleteView, TaskReportDetailView,
-    AssignUserToAdminView, AdminPromoteDemoteView
+    AssignUserToAdminView, AdminPromoteDemoteView, UnassignUserFromAdminView
 )
 from django.contrib import admin
 
@@ -37,6 +37,7 @@ urlpatterns = [
     path('admin/admins/<int:pk>/delete/', AdminDeleteView.as_view(), name='admin_delete'),
     path('admin/admins/<int:pk>/<str:action>/', AdminPromoteDemoteView.as_view(), name='admin_promote_demote'),
     path('admin/users/assign/', AssignUserToAdminView.as_view(), name='assign_user'),
+    path('admin/users/unassign/', UnassignUserFromAdminView.as_view(), name='unassign_user'),
     path('admin/tasks/', TaskListAdminView.as_view(), name='task_list_admin'),
     path('admin/tasks/create/', TaskCreateView.as_view(), name='task_create'),
     path('admin/tasks/<int:pk>/update/', TaskUpdateView.as_view(), name='task_update'),

@@ -70,3 +70,9 @@ class AdminForm(UserCreationForm):
 class AssignUserForm(forms.Form):
     user = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='User'))
     admin = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='Admin'))
+
+
+# Form for unassigning a user from an admin
+class UnassignUserForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='User'))
+    admin = forms.ModelChoiceField(queryset=User.objects.filter(groups__name='Admin'))

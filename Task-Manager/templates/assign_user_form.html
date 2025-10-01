@@ -32,7 +32,14 @@
                     <td>{{ assignment.user.username }}</td>
                     <td>
                         {% for admin in assignment.admins %}
-                            {{ admin.username }}{% if not forloop.last %}, {% endif %}
+                            <form method="post" action="{% url 'unassign_user' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="user" value="{{ assignment.user.id }}">
+                                <input type="hidden" name="admin" value="{{ admin.id }}">
+                                <span>{{ admin.username }}</span>
+                                <button type="submit" class="btn btn-danger btn-sm">Unassign</button>
+                            </form>
+                            {% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     </td>
                 </tr>
