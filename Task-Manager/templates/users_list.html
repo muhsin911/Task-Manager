@@ -43,6 +43,16 @@
             <td>
               <a href="{% url 'user_update' user.pk %}" class="btn btn-sm btn-warning">Edit</a>
               <a href="{% url 'user_delete' user.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              {% if request.user.is_superuser or request.user.groups.all|yesno:'SuperAdmin,' %}
+                {% for group in user.groups.all %}
+                  {% if group.name == 'User' %}
+                    <form action="{% url 'admin_promote_demote' user.pk 'promote' %}" method="post" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-info">Promote to Admin</button>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
             </td>
           </tr>
             {% endif %}

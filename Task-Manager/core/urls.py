@@ -13,6 +13,7 @@ from django.contrib import admin
 
 urlpatterns = [
     # Home Page
+
     path('', lambda request: __import__('django').shortcuts.render(request, 'index.html'), name='home'),
     path('accounts/profile/', UserProfileView.as_view(), name='profile'),
     # User-facing task list and update

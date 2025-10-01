@@ -149,9 +149,24 @@ class TaskReportDetailView(AdminRequiredMixin, DetailView):
 class AssignUserToAdminView(SuperAdminRequiredMixin, View):
     template_name = 'assign_user_form.html'
 
+    def get_assignments(self):
+        assignments = []
+        for user in User.objects.all():
+            try:
+                admins = user.userprofile.managed_by.all()
+                if admins:
+                    assignments.append({
+                        'user': user,
+                        'admins': admins
+                    })
+            except UserProfile.DoesNotExist:
+                continue
+        return assignments
+
     def get(self, request, *args, **kwargs):
         form = AssignUserForm()
-        return render(request, self.template_name, {'form': form})
+        assignments = self.get_assignments()
+        return render(request, self.template_name, {'form': form, 'assignments': assignments})
 
     def post(self, request, *args, **kwargs):
         form = AssignUserForm(request.POST)
@@ -159,8 +174,10 @@ class AssignUserToAdminView(SuperAdminRequiredMixin, View):
             user = form.cleaned_data['user']
             admin = form.cleaned_data['admin']
             user.userprofile.managed_by.add(admin)
-            return redirect('user_list')
-        return render(request, self.template_name, {'form': form})
+            assignments = self.get_assignments()
+            return render(request, self.template_name, {'form': AssignUserForm(), 'assignments': assignments})
+        assignments = self.get_assignments()
+        return render(request, self.template_name, {'form': form, 'assignments': assignments})
 
 # Custom View: Promote/Demote Admins (SuperAdmin Only)
 class AdminPromoteDemoteView(SuperAdminRequiredMixin, View):

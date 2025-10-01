@@ -9,10 +9,6 @@
       <div class="card-body">
         <p class="lead">A modern platform for managing tasks, users, and reports with role-based access control.</p>
         <ul class="list-group list-group-flush mb-3">
-          <li class="list-group-item">✔️ Secure JWT Authentication</li>
-          <li class="list-group-item">✔️ Role-based Admin Panel</li>
-          <li class="list-group-item">✔️ Beautiful UI with Bootstrap 5</li>
-          <li class="list-group-item">✔️ Task Completion Reports & Worked Hours</li>
         </ul>
         {% if user.is_authenticated %}
         <a href="{% url 'task_list_admin' %}" class="btn btn-success">Go to Dashboard</a>
