@@ -25,7 +25,11 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = 'user_profile.html'
 
     def get_object(self):
-        return self.request.user.userprofile
+        try:
+            return self.request.user.userprofile
+        except UserProfile.DoesNotExist:
+            # Create a UserProfile if missing
+            return UserProfile.objects.create(user=self.request.user)
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
