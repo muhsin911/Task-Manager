@@ -52,6 +52,12 @@ class UserDeleteView(SuperAdminRequiredMixin, DeleteView):
     template_name = 'user_confirm_delete.html'
     success_url = reverse_lazy('user_list')
 
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user.is_superuser or user.groups.filter(name='SuperAdmin').exists():
+            raise PermissionDenied("You cannot delete the superuser or a SuperAdmin.")
+        return super().delete(request, *args, **kwargs)
+
 # Admin Management (SuperAdmin Only)
 class AdminListView(SuperAdminRequiredMixin, ListView):
     model = User
@@ -83,6 +89,12 @@ class AdminDeleteView(SuperAdminRequiredMixin, DeleteView):
     model = User
     template_name = 'admin_confirm_delete.html'
     success_url = reverse_lazy('admin_list')
+
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        if user.is_superuser or user.groups.filter(name='SuperAdmin').exists():
+            raise PermissionDenied("You cannot delete the superuser or a SuperAdmin.")
+        return super().delete(request, *args, **kwargs)
 
 # Task Management (Admin and SuperAdmin)
 class TaskListAdminView(AdminRequiredMixin, ListView):

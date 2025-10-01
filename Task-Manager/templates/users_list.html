@@ -42,7 +42,11 @@
             <td>{{ user.groups.all.0.name }}</td>
             <td>
               <a href="{% url 'user_update' user.pk %}" class="btn btn-sm btn-warning">Edit</a>
-              <a href="{% url 'user_delete' user.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              {% if not user.is_superuser and not user.groups.all.0.name == 'SuperAdmin' %}
+                <a href="{% url 'user_delete' user.pk %}" class="btn btn-sm btn-danger">Delete</a>
+              {% else %}
+                <span class="badge bg-secondary">SuperAdmin</span>
+              {% endif %}
               {% if request.user.is_superuser or request.user.groups.all|yesno:'SuperAdmin,' %}
                 {% for group in user.groups.all %}
                   {% if group.name == 'User' %}

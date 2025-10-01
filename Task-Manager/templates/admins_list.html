@@ -27,12 +27,16 @@
             <td>{{ admin.username }}</td>
             <td>{{ admin.email }}</td>
             <td>
-                <a href="{% url 'admin_update' admin.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'admin_delete' admin.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                <form action="{% url 'admin_promote_demote' admin.pk 'demote' %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-info">Demote to User</button>
-                </form>
+                                <a href="{% url 'admin_update' admin.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                {% if not admin.is_superuser and not admin.groups.all.0.name == 'SuperAdmin' %}
+                                    <a href="{% url 'admin_delete' admin.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                    <form action="{% url 'admin_promote_demote' admin.pk 'demote' %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-info">Demote to User</button>
+                                    </form>
+                                {% else %}
+                                    <span class="badge bg-secondary">SuperAdmin</span>
+                                {% endif %}
             </td>
         </tr>
         {% endif %}
