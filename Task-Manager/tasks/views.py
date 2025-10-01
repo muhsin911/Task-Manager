@@ -1,23 +1,24 @@
-
-
 # Generic task detail view for all roles
-from .models import Task
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+
+from .models import Task, UserProfile
+from .serializers import TaskSerializer, TaskUpdateSerializer, TaskReportSerializer
+from .forms import TaskForm
+
+
+# Task Detail View (generic)
 class TaskDetailView(LoginRequiredMixin, DetailView):
     model = Task
     template_name = 'task_detail.html'
     context_object_name = 'task'
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from .models import Task, UserProfile
-from .serializers import TaskSerializer, TaskUpdateSerializer, TaskReportSerializer
-from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView, ListView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from .forms import TaskForm
+
 
 # User Profile View
 class UserProfileView(LoginRequiredMixin, DetailView):
@@ -30,31 +31,31 @@ class UserProfileView(LoginRequiredMixin, DetailView):
         except UserProfile.DoesNotExist:
             # Create a UserProfile if missing
             return UserProfile.objects.create(user=self.request.user)
-from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from .models import Task, UserProfile
-from .serializers import TaskSerializer, TaskUpdateSerializer, TaskReportSerializer
-from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView, ListView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from .forms import TaskForm
 
+
+# Permissions
 class IsAuthenticatedAndUser(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.groups.filter(name='User').exists()
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.groups.filter(name='User').exists()
+        )
+
 
 class IsAdminOrSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.groups.filter(name__in=['Admin', 'SuperAdmin']).exists()
 
+
+# API Views
 class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticatedAndUser]
 
     def get_queryset(self):
         return Task.objects.filter(assigned_to=self.request.user)
+
 
 class TaskUpdateView(generics.UpdateAPIView):
     serializer_class = TaskUpdateSerializer
@@ -81,7 +82,6 @@ class TaskReportView(generics.RetrieveAPIView):
             raise PermissionDenied("Report only available for completed tasks.")
         return task
 
-# User Profile View
 
 # User-facing: List their own tasks
 class UserTaskListView(LoginRequiredMixin, ListView):
@@ -91,6 +91,7 @@ class UserTaskListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Task.objects.filter(assigned_to=self.request.user)
+
 
 # User-facing: Update their own task
 class UserTaskUpdateView(LoginRequiredMixin, UpdateView):
@@ -103,16 +104,16 @@ class UserTaskUpdateView(LoginRequiredMixin, UpdateView):
         return Task.objects.filter(assigned_to=self.request.user)
 
     def get_form(self, form_class=None):
-        # Only allow status, completion_report, worked_hours fields
         from django import forms
+
         class UserTaskForm(forms.ModelForm):
             class Meta:
                 model = Task
                 fields = ['status', 'completion_report', 'worked_hours']
+
         return UserTaskForm(**self.get_form_kwargs())
 
     def form_valid(self, form):
-        # Only allow update if user is assigned
         if self.get_object().assigned_to != self.request.user:
             form.add_error(None, "You do not have permission to update this task.")
             return self.form_invalid(form)
