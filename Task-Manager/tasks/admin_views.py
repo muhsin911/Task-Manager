@@ -6,6 +6,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.core.exceptions import PermissionDenied
 from .models import Task, UserProfile
 from .forms import TaskForm, UserForm, AdminForm, AssignUserForm
+from .forms import UserUpdateForm
 
 # Permission Mixins
 class SuperAdminRequiredMixin(UserPassesTestMixin):
@@ -41,9 +42,10 @@ class UserCreateView(SuperAdminRequiredMixin, CreateView):
         self.object.groups.add(user_group)
         return response
 
+
 class UserUpdateView(SuperAdminRequiredMixin, UpdateView):
     model = User
-    form_class = UserForm
+    form_class = UserUpdateForm
     template_name = 'user_form.html'
     success_url = reverse_lazy('user_list')
 

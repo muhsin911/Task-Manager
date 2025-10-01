@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from .models import Task, UserProfile
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 class TaskForm(forms.ModelForm):
     class Meta:
@@ -29,10 +30,37 @@ class TaskForm(forms.ModelForm):
             cleaned_data['worked_hours'] = None
         return cleaned_data
 
+
 class UserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2']
+
+class UserUpdateForm(forms.ModelForm):
+    password = forms.CharField(label='New Password', widget=forms.PasswordInput, required=False)
+    password_confirm = forms.CharField(label='Confirm Password', widget=forms.PasswordInput, required=False)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password or password_confirm:
+            if password != password_confirm:
+                self.add_error('password_confirm', 'Passwords do not match.')
+        return cleaned_data
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        password = self.cleaned_data.get('password')
+        if password:
+            user.set_password(password)
+        if commit:
+            user.save()
+        return user
 
 class AdminForm(UserCreationForm):
     class Meta:
