@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-.vscode/
+## .vscode/ removed to allow tracking of VS Code settings
 *.log
 *.pot
 *.sqlite3
@@ -30,7 +30,6 @@ build/
 *.sqlite3
 media/
 staticfiles/
-.vscode/
 .env
 venv/
 .DS_Store
