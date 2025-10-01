@@ -1,11 +1,41 @@
+
+
+# Generic task detail view for all roles
+from .models import Task
+from django.views.generic import DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+class TaskDetailView(LoginRequiredMixin, DetailView):
+    model = Task
+    template_name = 'task_detail.html'
+    context_object_name = 'task'
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from .models import Task, UserProfile
 from .serializers import TaskSerializer, TaskUpdateSerializer, TaskReportSerializer
 from django.shortcuts import get_object_or_404
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from .forms import TaskForm
+
+# User Profile View
+class UserProfileView(LoginRequiredMixin, DetailView):
+    model = UserProfile
+    template_name = 'user_profile.html'
+
+    def get_object(self):
+        return self.request.user.userprofile
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
+from .models import Task, UserProfile
+from .serializers import TaskSerializer, TaskUpdateSerializer, TaskReportSerializer
+from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView, ListView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from .forms import TaskForm
 
 class IsAuthenticatedAndUser(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -48,9 +78,38 @@ class TaskReportView(generics.RetrieveAPIView):
         return task
 
 # User Profile View
-class UserProfileView(LoginRequiredMixin, DetailView):
-    model = UserProfile
-    template_name = 'user_profile.html'
 
-    def get_object(self):
-        return self.request.user.userprofile
+# User-facing: List their own tasks
+class UserTaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = 'tasks_list_user.html'
+    context_object_name = 'object_list'
+
+    def get_queryset(self):
+        return Task.objects.filter(assigned_to=self.request.user)
+
+# User-facing: Update their own task
+class UserTaskUpdateView(LoginRequiredMixin, UpdateView):
+    model = Task
+    fields = ['status', 'completion_report', 'worked_hours']
+    template_name = 'task_update_user.html'
+    success_url = reverse_lazy('tasks_list_user')
+
+    def get_queryset(self):
+        return Task.objects.filter(assigned_to=self.request.user)
+
+    def get_form(self, form_class=None):
+        # Only allow status, completion_report, worked_hours fields
+        from django import forms
+        class UserTaskForm(forms.ModelForm):
+            class Meta:
+                model = Task
+                fields = ['status', 'completion_report', 'worked_hours']
+        return UserTaskForm(**self.get_form_kwargs())
+
+    def form_valid(self, form):
+        # Only allow update if user is assigned
+        if self.get_object().assigned_to != self.request.user:
+            form.add_error(None, "You do not have permission to update this task.")
+            return self.form_invalid(form)
+        return super().form_valid(form)

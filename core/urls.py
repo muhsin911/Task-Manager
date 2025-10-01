@@ -1,7 +1,8 @@
 from django.urls import path, include
+from django.contrib.auth.views import LogoutView
 from tasks.role_login import RoleBasedLoginView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from tasks.views import TaskListView, TaskUpdateView, TaskReportView, UserProfileView
+from tasks.views import TaskListView, TaskUpdateView, TaskReportView, UserProfileView, UserTaskListView, UserTaskUpdateView, TaskDetailView
 from tasks.admin_views import (
     UserListView, UserCreateView, UserUpdateView, UserDeleteView,
     AdminListView, AdminCreateView, AdminUpdateView, AdminDeleteView,
@@ -14,6 +15,10 @@ urlpatterns = [
     # Home Page
     path('', lambda request: __import__('django').shortcuts.render(request, 'index.html'), name='home'),
     path('accounts/profile/', UserProfileView.as_view(), name='profile'),
+    # User-facing task list and update
+    path('my-tasks/', UserTaskListView.as_view(), name='tasks_list_user'),
+    path('my-tasks/<int:pk>/update/', UserTaskUpdateView.as_view(), name='task_update_user'),
+    path('tasks/<int:pk>/view/', TaskDetailView.as_view(), name='task_detail'),
     # API Endpoints
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -38,6 +43,7 @@ urlpatterns = [
     path('admin/tasks/<int:pk>/report/', TaskReportDetailView.as_view(), name='task_report_detail'),
     # Login
     path('accounts/login/', RoleBasedLoginView.as_view(), name='login'),
+    path('accounts/logout/', LogoutView.as_view(next_page='/'), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
     # Django Admin Site (must be last)
     path('admin/', admin.site.urls),

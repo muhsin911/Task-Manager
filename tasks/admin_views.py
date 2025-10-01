@@ -90,6 +90,14 @@ class TaskListAdminView(AdminRequiredMixin, ListView):
     template_name = 'tasks_list_admin.html'
     context_object_name = 'tasks'
 
+    def dispatch(self, request, *args, **kwargs):
+        # If user is not Admin or SuperAdmin, redirect to user task list with message
+        if request.user.is_authenticated and request.user.groups.filter(name='User').exists():
+            from django.contrib import messages
+            messages.warning(request, "You do not have permission to access the admin task panel. Redirected to your tasks.")
+            return redirect('tasks_list_user')
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
         if self.request.user.groups.filter(name='SuperAdmin').exists():
             return Task.objects.all()

@@ -2,6 +2,24 @@
 {% block content %}
 <h2 class="mb-4">Tasks</h2>
 <a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Create Task</a>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <select name="status" class="form-select" title="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="user" class="form-control" placeholder="Assigned To Username" value="{{ request.GET.user }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+    </div>
+</form>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -13,18 +31,69 @@
     </thead>
     <tbody>
         {% for task in object_list %}
-        <tr>
-            <td>{{ task.title }}</td>
-            <td>{{ task.assigned_to.username }}</td>
-            <td>{{ task.status }}</td>
-            <td>
-                <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                {% if task.status == 'Completed' %}
-                <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+            {% if not request.GET.status %}
+                {% if not request.GET.user %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.username }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>
+                            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-info">View</a>
+                            <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            {% if task.status == 'Completed' %}
+                            <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% elif task.assigned_to.username|lower == request.GET.user|lower %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.username }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>
+                            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-info">View</a>
+                            <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            {% if task.status == 'Completed' %}
+                            <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endif %}
-            </td>
-        </tr>
+            {% elif task.status == request.GET.status %}
+                {% if not request.GET.user %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.username }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>
+                            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-info">View</a>
+                            <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            {% if task.status == 'Completed' %}
+                            <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% elif task.assigned_to.username|lower == request.GET.user|lower %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.assigned_to.username }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>
+                            <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-info">View</a>
+                            <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            {% if task.status == 'Completed' %}
+                            <a href="{% url 'task_report_detail' task.pk %}" class="btn btn-sm btn-info">View Report</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endif %}
+        {% empty %}
+        <tr><td colspan="4">No tasks found.</td></tr>
         {% endfor %}
     </tbody>
 </table>

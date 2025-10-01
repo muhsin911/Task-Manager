@@ -14,13 +14,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if user.groups.all.0.name == 'SuperAdmin' %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'user_list' %}">Users</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'admin_list' %}">Admins</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'assign_user' %}">Assign Users</a></li>
-                    {% endif %}
-                    {% if user.groups.all.0.name in 'Admin,SuperAdmin' %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'task_list_admin' %}">Tasks</a></li>
+                    {% if user.is_authenticated %}
+                        {% if user.groups.all.0.name == 'SuperAdmin' %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'user_list' %}">Users</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'admin_list' %}">Admins</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'assign_user' %}">Assign Users</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{% url 'task_list_admin' %}">Tasks</a></li>
+                        {% elif user.groups.all.0.name == 'Admin' %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'task_list_admin' %}">Tasks</a></li>
+                        {% elif user.groups.all.0.name == 'User' %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'tasks_list_user' %}">My Tasks</a></li>
+                        {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

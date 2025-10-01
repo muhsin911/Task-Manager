@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-warning">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+<h2 class="mb-4">My Tasks</h2>
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <select name="status" class="form-select" title="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+    </div>
+</form>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in object_list %}
+        {% if not request.GET.status or task.status == request.GET.status %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.description }}</td>
+            <td>{{ task.due_date }}</td>
+            <td>{{ task.status }}</td>
+            <td>
+                <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-info">View</a>
+                <a href="{% url 'task_update_user' task.pk %}" class="btn btn-sm btn-warning">Update</a>
+                {% if task.status == 'Completed' %}
+                <span class="badge bg-success">Completed</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endif %}
+        {% empty %}
+        <tr><td colspan="5">No tasks assigned.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
